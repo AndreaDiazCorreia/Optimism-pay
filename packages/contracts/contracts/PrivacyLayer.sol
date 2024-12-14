@@ -1,27 +1,68 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-contract PrivacyLayer {
-    address public admin;
+import "fhevm/lib/TFHE.sol";
+import "fhevm/config/ZamaFHEVMConfig.sol";
+import "fhevm/gateway/GatewayCaller.sol";
 
-    event DataEncrypted(bytes encryptedData);
-    event DataDecrypted(bytes originalData);
+/// @title PrivacyLayer
+/// @notice A contract for securely encrypting and decrypting data using Fully Homomorphic Encryption (FHE)
+contract PrivacyLayer is SepoliaZamaFHEVMConfig, GatewayCaller {
+    // Encrypted state variable for storing sensitive data
+    ebytes public encryptedData;
 
-    constructor() {
-        admin = msg.sender;
+    // Event emitted when data is encrypted
+    event DataEncrypted(ebytes encryptedData);
+
+    // Event emitted when data is decrypted
+    event DataDecrypted(bytes decryptedData);
+
+    /// @notice Store encrypted data in the contract
+    /// @param data Encrypted data handle provided by the user
+    /// @param inputProof Proof to validate the encrypted input
+    function storeEncryptedData(
+        einput data,
+        bytes calldata inputProof
+    ) external {
+        // Convert the input to an encrypted bytes type
+        encryptedData = TFHE.asEbytes(data, inputProof);
+
+        // Allow the contract to use this encrypted data
+        TFHE.allowThis(encryptedData);
+
+        emit DataEncrypted(encryptedData);
     }
 
-    function encryptData(bytes memory data) external returns (bytes memory) {
-        // Mock encryption for demonstration (to be handled by the backend)
-        emit DataEncrypted(data);
-        return data; // Placeholder
+    /// @notice Request decryption of the stored encrypted data
+    function requestDecryption() external {
+        // Create a decryption request using the Gateway
+        uint256;
+        ciphertexts[0] = TFHE.toUint256(encryptedData);
+
+        uint256 requestID = Gateway.requestDecryption(
+            ciphertexts,
+            this.onDecryptedData.selector,
+            0,
+            block.timestamp + 100, // Set a deadline of 100 seconds
+            false // Non-trustless mode for simplicity
+        );
+
+        // Optionally store requestID if needed for validation
     }
 
-    function decryptData(
-        bytes memory encryptedData
-    ) external returns (bytes memory) {
-        // Mock decryption for demonstration (to be handled by the backend)
-        emit DataDecrypted(encryptedData);
-        return encryptedData; // Placeholder
+    /// @notice Callback function to handle the decrypted data
+    /// @param requestID The ID of the decryption request
+    /// @param decryptedData The decrypted plaintext data
+    function onDecryptedData(
+        uint256 requestID,
+        bytes memory decryptedData
+    ) public onlyGateway {
+        emit DataDecrypted(decryptedData);
+    }
+
+    /// @notice Retrieve the encrypted data
+    /// @return The encrypted data stored in the contract
+    function getEncryptedData() external view returns (ebytes) {
+        return encryptedData;
     }
 }
