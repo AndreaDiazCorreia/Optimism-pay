@@ -1,0 +1,38 @@
+# Node.js
+node_modules/
+.pnpm-debug.log*
+.npm/
+dist/
+build/
+*.log
+*.env
+
+# pnpm y TurboRepo
+.pnpm-store/
+turbo/
+.cache/
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Contratos inteligentes con Hardhat
+packages/contracts/artifacts/
+packages/contracts/cache/
+packages/contracts/node_modules/
+
+# Next.js
+apps/frontend/.next/
+apps/frontend/node_modules/
+
+# Logs y errores
+*.log
+*.error
+*.warn
+
+# Sistema operativo
+*.DS_Store
+Thumbs.db
