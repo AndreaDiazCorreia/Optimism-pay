@@ -4,10 +4,12 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ConfigManager.sol";
 import "@eth-optimism/contracts/libraries/bridge/IL2StandardBridge.sol";
+import "./GasPaymaster.sol";
 
 contract OptimismPayBridge {
     address public admin;
     ConfigManager public configManager;
+    GasPaymaster public gasPaymaster;
     address public l2StandardBridge;
 
     event TransferInitiated(
@@ -27,9 +29,14 @@ contract OptimismPayBridge {
         uint256 destinationChainId
     );
 
-    constructor(address _configManager, address _l2StandardBridge) {
+    constructor(
+        address _configManager,
+        address _gasPaymaster,
+        address _l2StandardBridge
+    ) {
         admin = msg.sender;
         configManager = ConfigManager(_configManager);
+        gasPaymaster = GasPaymaster(_gasPaymaster);
         l2StandardBridge = _l2StandardBridge;
     }
 
@@ -46,15 +53,12 @@ contract OptimismPayBridge {
             "Token not allowed for transfer"
         );
 
-        uint256 gasCost = (configManager.gasFeePercentage() * amount) / 100;
-        require(amount > gasCost, "Amount must cover gas cost");
-
-        uint256 netAmount = amount - gasCost;
-
-        // Transfer tokens to this contract
-        IERC20(token).transferFrom(msg.sender, address(this), amount);
+        // Deduct gas using GasPaymaster
+        uint256 netAmount = gasPaymaster.deductGas(token, msg.sender, amount);
+        require(netAmount > 0, "Net amount must be greater than zero");
 
         // Emit an event for local transfer
+        uint256 gasCost = amount - netAmount; // Gas cost already deducted
         emit TransferInitiated(
             msg.sender,
             receiver,
