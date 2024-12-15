@@ -1,7 +1,3 @@
-### **README for the Cross-Chain Privacy-Enhanced Payment Contracts**
-
----
-
 ## **Overview**
 
 This system of contracts is designed to enable secure, private, and seamless cross-chain token transfers within the Optimism Superchain ecosystem. It integrates cutting-edge technologies like **Fully Homomorphic Encryption (FHE)** via Zama and leverages Optimism's **L2StandardBridge** for interoperability.
