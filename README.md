@@ -151,22 +151,22 @@ The **OptimismPay** project is organized as a monorepo for better modularity and
 ## **Roadmap**
 
 ### **Phase 1: MVP Completion (Current Phase)**
-🟢 Cross-chain token transfers using Optimism's `L2StandardBridge`.  
-🟢 Privacy-preserving transactions with Zama FHE.  
-🟢 Initial SDK with core functionalities.  
+🟢 Cross-chain token transfers using Optimism's `L2StandardBridge`.
+🟢 Privacy-preserving transactions with Zama FHE.
+🟢 Initial SDK with core functionalities.
 
 ### **Phase 2: SDK Refinement**
-🟡 Enhanced API documentation and modularization.  
-🟡 Improved error handling and token validation logic.  
+🟡 Enhanced API documentation and modularization.
+🟡 Improved error handling and token validation logic.
 
 ### **Phase 3: Network Expansion**
-🟡 Add support for zkSync, Polygon Supernets, and other Superchain networks.  
+🟡 Add support for zkSync, Polygon Supernets, and other Superchain networks.
 
 ### **Phase 4: Advanced Privacy Features**
-🔵 Integrate zk-SNARKs for zero-knowledge transaction proofs.  
+🔵 Integrate zk-SNARKs for zero-knowledge transaction proofs.
 
 ### **Phase 5: Ecosystem Tools**
-🔵 Build browser extensions and plugins for ecommerce platforms.  
+🔵 Build browser extensions and plugins for ecommerce platforms.
 
 ---
 
@@ -191,6 +191,10 @@ This project is licensed under the [MIT License](./LICENSE).
 ## **Contact**
 
 For questions or issues, open an issue on [GitHub](https://github.com/AndreaDiazCorreia/Optimism-pay/issues).
+
+## **Social Media**
+
+Follow us on [Social Media](https://linktr.ee/optimismpaymaster) for updates and announcements.
 
 ---
 
