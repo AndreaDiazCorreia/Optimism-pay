@@ -1,0 +1,50 @@
+{
+  "name": "optimism-pay-sdk",
+  "version": "0.1.0",
+  "description": "SDK for cross-chain token transfers with gas deduction and privacy using Fully Homomorphic Encryption (FHE).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "start": "node dist/examples/transferExample.js",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "optimism",
+    "sdk",
+    "blockchain",
+    "privacy",
+    "cross-chain",
+    "FHE",
+    "gasless"
+  ],
+  "author": "Your Name or Team",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/optimism-pay-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-repo/optimism-pay-sdk/issues"
+  },
+  "homepage": "https://github.com/your-repo/optimism-pay-sdk#readme"
+}
