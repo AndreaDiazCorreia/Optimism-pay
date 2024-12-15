@@ -6,63 +6,70 @@ import "fhevm/config/ZamaFHEVMConfig.sol";
 import "fhevm/gateway/GatewayCaller.sol";
 
 /// @title PrivacyLayer
-/// @notice A contract for securely encrypting and decrypting data using Fully Homomorphic Encryption (FHE)
+/// @notice A contract for securely encrypting and decrypting cross-chain transaction data using Fully Homomorphic Encryption (FHE)
 contract PrivacyLayer is SepoliaZamaFHEVMConfig, GatewayCaller {
-    // Encrypted state variable for storing sensitive data
-    ebytes public encryptedData;
+    // Encrypted state variable for storing sensitive transaction data
+    ebytes public encryptedTransactionData;
 
-    // Event emitted when data is encrypted
-    event DataEncrypted(ebytes encryptedData);
+    // Event emitted when transaction data is encrypted
+    event TransactionDataEncrypted(ebytes encryptedData);
 
-    // Event emitted when data is decrypted
-    event DataDecrypted(bytes decryptedData);
+    // Event emitted when transaction data is decrypted
+    event TransactionDataDecrypted(bytes decryptedData);
 
-    /// @notice Store encrypted data in the contract
+    /// @notice Encrypt transaction data
     /// @param data Encrypted data handle provided by the user
     /// @param inputProof Proof to validate the encrypted input
-    function storeEncryptedData(
+    function encryptTransactionData(
         einput data,
         bytes calldata inputProof
     ) external {
         // Convert the input to an encrypted bytes type
-        encryptedData = TFHE.asEbytes(data, inputProof);
+        encryptedTransactionData = TFHE.asEbytes(data, inputProof);
 
         // Allow the contract to use this encrypted data
-        TFHE.allowThis(encryptedData);
+        TFHE.allowThis(encryptedTransactionData);
 
-        emit DataEncrypted(encryptedData);
+        emit TransactionDataEncrypted(encryptedTransactionData);
     }
 
-    /// @notice Request decryption of the stored encrypted data
-    function requestDecryption() external {
+    /// @notice Request decryption of the transaction data
+    /// @dev This would typically be used by the bridge or relay to process the transaction
+    function requestTransactionDecryption() external {
+        require(
+            encryptedTransactionData.length > 0,
+            "No encrypted data available"
+        );
+
         // Create a decryption request using the Gateway
         uint256;
-        ciphertexts[0] = TFHE.toUint256(encryptedData);
+        ciphertexts[0] = TFHE.toUint256(encryptedTransactionData);
 
         uint256 requestID = Gateway.requestDecryption(
             ciphertexts,
-            this.onDecryptedData.selector,
-            0,
+            this.onDecryptedTransactionData.selector,
+            0, // Priority fee for the request (can be adjusted)
             block.timestamp + 100, // Set a deadline of 100 seconds
             false // Non-trustless mode for simplicity
         );
 
-        // Optionally store requestID if needed for validation
+        // Optionally store requestID for validation if needed
     }
 
-    /// @notice Callback function to handle the decrypted data
+    /// @notice Callback function to handle the decrypted transaction data
     /// @param requestID The ID of the decryption request
-    /// @param decryptedData The decrypted plaintext data
-    function onDecryptedData(
+    /// @param decryptedData The decrypted plaintext transaction data
+    function onDecryptedTransactionData(
         uint256 requestID,
         bytes memory decryptedData
     ) public onlyGateway {
-        emit DataDecrypted(decryptedData);
+        // Process the decrypted data (e.g., validate or execute the transaction)
+        emit TransactionDataDecrypted(decryptedData);
     }
 
-    /// @notice Retrieve the encrypted data
-    /// @return The encrypted data stored in the contract
-    function getEncryptedData() external view returns (ebytes) {
-        return encryptedData;
+    /// @notice Retrieve the encrypted transaction data
+    /// @return The encrypted transaction data stored in the contract
+    function getEncryptedTransactionData() external view returns (ebytes) {
+        return encryptedTransactionData;
     }
 }

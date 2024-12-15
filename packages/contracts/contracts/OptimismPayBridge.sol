@@ -3,13 +3,15 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ConfigManager.sol";
-import "@eth-optimism/contracts/libraries/bridge/IL2StandardBridge.sol";
 import "./GasPaymaster.sol";
+import "./PrivacyLayer.sol";
+import "@eth-optimism/contracts/libraries/bridge/IL2StandardBridge.sol";
 
 contract OptimismPayBridge {
     address public admin;
     ConfigManager public configManager;
     GasPaymaster public gasPaymaster;
+    PrivacyLayer public privacyLayer;
     address public l2StandardBridge;
 
     event TransferInitiated(
@@ -18,7 +20,8 @@ contract OptimismPayBridge {
         address token,
         uint256 amount,
         uint256 gasCost,
-        uint256 destinationChainId
+        uint256 destinationChainId,
+        ebytes encryptedData
     );
 
     event CrossChainTransferInitiated(
@@ -32,19 +35,23 @@ contract OptimismPayBridge {
     constructor(
         address _configManager,
         address _gasPaymaster,
+        address _privacyLayer,
         address _l2StandardBridge
     ) {
         admin = msg.sender;
         configManager = ConfigManager(_configManager);
         gasPaymaster = GasPaymaster(_gasPaymaster);
+        privacyLayer = PrivacyLayer(_privacyLayer);
         l2StandardBridge = _l2StandardBridge;
     }
 
-    function transfer(
+    function transferWithPrivacy(
         address token,
         uint256 amount,
         address receiver,
-        uint256 destinationChainId
+        uint256 destinationChainId,
+        einput encryptedData,
+        bytes calldata inputProof
     ) external {
         require(amount > 0, "Amount must be greater than zero");
         require(receiver != address(0), "Invalid receiver address");
@@ -57,15 +64,19 @@ contract OptimismPayBridge {
         uint256 netAmount = gasPaymaster.deductGas(token, msg.sender, amount);
         require(netAmount > 0, "Net amount must be greater than zero");
 
+        // Encrypt transaction data using PrivacyLayer
+        privacyLayer.encryptTransactionData(encryptedData, inputProof);
+
         // Emit an event for local transfer
-        uint256 gasCost = amount - netAmount; // Gas cost already deducted
+        uint256 gasCost = amount - netAmount;
         emit TransferInitiated(
             msg.sender,
             receiver,
             token,
             netAmount,
             gasCost,
-            destinationChainId
+            destinationChainId,
+            privacyLayer.getEncryptedTransactionData()
         );
 
         // Initiate cross-chain transfer
